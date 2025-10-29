@@ -1,0 +1,382 @@
+<!-- Flip of Fate: a playful math-meets-romance coin flip by Lyon -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flip of Fate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .screen {
+            position: absolute;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease;
+        }
+
+        .screen.active { opacity: 1; pointer-events: auto; }
+
+        /* Intro Screen */
+        #intro-screen { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); }
+
+        .intro-title {
+            font-size: 3rem;
+            font-weight: 600;
+            color: #fff;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border-right: 3px solid #fff;
+            white-space: nowrap;
+            animation: typing 2s steps(11, end) forwards, blink 0.7s step-end infinite;
+        }
+
+        @keyframes typing { from { width: 0; } to { width: 100%; } }
+        @keyframes blink { 50% { border-color: transparent; } }
+
+        /* Screen 1 */
+        #screen1 { background: linear-gradient(135deg, #e0c3fc 0%, #ffdee9 100%); }
+
+        .compliment-text {
+            max-width: 600px;
+            font-size: 1.4rem;
+            line-height: 1.8;
+            color: #5a4a7f;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6); }
+        .btn:active { transform: translateY(-1px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Screen 2 */
+        #screen2 { background: linear-gradient(135deg, #fda085 0%, #a18cd1 100%); }
+
+        .flip-title {
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .flip-rules {
+            font-size: 1.3rem;
+            color: #fff;
+            margin-bottom: 2rem;
+            line-height: 2;
+            text-shadow: 1px 1px 5px rgba(0,0,0,0.2);
+            animation: fadeInUp 0.8s ease 0.2s backwards;
+        }
+
+        .result-text {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #fff;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            min-height: 3rem;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .result-text.show {
+            opacity: 1;
+            animation: pulseIn 0.6s ease;
+        }
+
+        @keyframes pulseIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .coin-container { perspective: 1000px; margin-bottom: 3rem; }
+
+        .coin {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .coin-face {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            position: absolute;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 5rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            background: linear-gradient(145deg, #ffd700, #ffed4e);
+            border: 8px solid #f0c800;
+        }
+
+        .coin-back { transform: rotateY(180deg); }
+
+        /* Screen 3 */
+        #screen3 { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
+
+        .message-text {
+            max-width: 600px;
+            font-size: 1.5rem;
+            line-height: 1.8;
+            color: #7f4a4a;
+            margin-bottom: 1rem;
+            animation: fadeInScale 0.8s ease;
+        }
+
+        .message-subtext {
+            max-width: 600px;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #9f6a6a;
+            margin-bottom: 2rem;
+            animation: fadeInScale 0.8s ease 0.3s backwards;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Sparkles */
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: sparkleFloat 3s infinite;
+        }
+
+        @keyframes sparkleFloat {
+            0%, 100% { opacity: 0; transform: translateY(0) scale(0); }
+            50% { opacity: 1; transform: translateY(-100px) scale(1); }
+        }
+
+        /* Signature */
+        .signature-container {
+            margin-top: 40px;
+            text-align: center;
+            font-family: 'Dancing Script', cursive;
+            color: rgba(127, 74, 74, 0.6);
+            font-size: 1.5rem;
+        }
+
+        .typed-signature {
+            display: inline-block;
+            border-right: 2px solid rgba(127, 74, 74, 0.4);
+            white-space: nowrap;
+            overflow: hidden;
+            width: 0;
+            animation: typingSignature 2s steps(7, end) 1s forwards, blinkSignature 0.7s step-end infinite;
+        }
+
+        @keyframes typingSignature {
+            from { width: 0; }
+            to { width: 5.5ch; }
+        }
+
+        @keyframes blinkSignature { 50% { border-color: transparent; } }
+
+        @media (max-width: 768px) {
+            .compliment-text { font-size: 1.2rem; }
+            .message-text { font-size: 1.3rem; }
+            .message-subtext { font-size: 1.1rem; }
+            .intro-title { font-size: 2rem; }
+            .coin, .coin-face { width: 150px; height: 150px; }
+            .coin-face { font-size: 4rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Intro Screen -->
+    <div id="intro-screen" class="screen active">
+        <div class="intro-title">Flip of Fate</div>
+    </div>
+
+    <!-- Screen 1 -->
+    <div id="screen1" class="screen">
+        <p class="compliment-text">
+            Something about that smile! <br><br>
+            You must be the solution to my equation, because when you smile, everything adds up.😊
+        </p>
+        <button class="btn" id="continueBtn">Continue ➡️</button>
+    </div>
+
+    <!-- Screen 2 -->
+    <div id="screen2" class="screen">
+        <h2 class="flip-title">So I built this coin flip to see if I should say hi again 😅...</h2>
+        <p class="flip-rules">❤️ Heads = The coin's got good taste 😎<br>∞ Tails = Fate is playing hard to get, but okay 💀</p>
+        <div class="coin-container">
+            <div class="coin" id="coin">
+                <div class="coin-face coin-front">❤️</div>
+                <div class="coin-face coin-back">∞</div>
+            </div>
+        </div>
+        <div class="result-text" id="resultText"></div>
+        <button class="btn" id="flipBtn">Flip Coin 🪙</button>
+        <button class="btn" id="reflipBtn" style="display:none;">Reflip 🔁</button>
+    </div>
+
+    <!-- Screen 3 -->
+    <div id="screen3" class="screen">
+        <p class="message-text" id="message-main"></p>
+        <p class="message-subtext" id="message-sub"></p>
+        <button class="btn" onclick="window.open('https://wa.me/254717405350?text=Hi Lyon!','_blank')">
+            Text me your result 👀
+        </button>
+        <button class="btn" id="replayBtn" style="margin-top:20px;">Replay 🔄</button>
+        <div class="signature-container">
+            <span class="typed-signature">— Lyon</span>
+        </div>
+    </div>
+
+    <script>
+        let flipResult = null;
+        let rotation = 0;
+
+        // Sparkles
+        for (let i = 0; i < 30; i++) {
+            const s = document.createElement('div');
+            s.className = 'sparkle';
+            s.style.left = Math.random() * 100 + '%';
+            s.style.animationDelay = Math.random() * 3 + 's';
+            document.body.appendChild(s);
+        }
+
+        // Transition intro → screen1
+        setTimeout(() => {
+            document.getElementById('intro-screen').classList.remove('active');
+            setTimeout(() => document.getElementById('screen1').classList.add('active'), 800);
+        }, 3000);
+
+        // Continue button
+        document.getElementById('continueBtn').onclick = () => {
+            document.getElementById('screen1').classList.remove('active');
+            setTimeout(() => document.getElementById('screen2').classList.add('active'), 800);
+        };
+
+        // Flip button
+        document.getElementById('flipBtn').onclick = () => flipCoin();
+
+        function flipCoin() {
+            const coin = document.getElementById('coin');
+            const flipBtn = document.getElementById('flipBtn');
+            const reflipBtn = document.getElementById('reflipBtn');
+            const resultText = document.getElementById('resultText');
+
+            flipBtn.disabled = true;
+            resultText.classList.remove('show');
+            reflipBtn.style.display = "none";
+
+            // Sound
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator(), gain = ctx.createGain();
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.frequency.value = 800; gain.gain.value = 0.1;
+                osc.start(); osc.stop(ctx.currentTime + 0.1);
+            } catch(e) {}
+
+            const isHeads = Math.random() < 0.5;
+            flipResult = isHeads ? 'heads' : 'tails';
+            rotation += 1800 + (isHeads ? 0 : 180);
+            coin.style.transform = `rotateY(${rotation}deg)`;
+
+            setTimeout(() => {
+                resultText.textContent = isHeads ? '❤️ Heads!' : '∞ Tails!';
+                resultText.classList.add('show');
+                flipBtn.disabled = false;
+                reflipBtn.style.display = "inline-block";
+
+                setTimeout(() => {
+                    document.getElementById('screen2').classList.remove('active');
+                    setTimeout(() => {
+                        showResult();
+                        document.getElementById('screen3').classList.add('active');
+                    }, 800);
+                }, 2500);
+            }, 1500);
+        }
+
+        // Reflip button
+        document.getElementById('reflipBtn').onclick = () => flipCoin();
+
+        // Replay button (restart everything)
+        document.getElementById('replayBtn').onclick = () => {
+            // Reset all screens and variables
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            rotation = 0;
+            document.getElementById('coin').style.transform = 'rotateY(0deg)';
+            document.getElementById('resultText').textContent = '';
+            document.getElementById('reflipBtn').style.display = 'none';
+            document.getElementById('intro-screen').classList.add('active');
+
+            // Restart timing
+            setTimeout(() => {
+                document.getElementById('intro-screen').classList.remove('active');
+                setTimeout(() => document.getElementById('screen1').classList.add('active'), 800);
+            }, 3000);
+        };
+
+        function showResult() {
+            const main = document.getElementById('message-main');
+            const sub = document.getElementById('message-sub');
+            if (flipResult === 'heads') {
+                main.textContent = "Looks like fate said yes. Hi Nicole, again 😌";
+                sub.textContent = "Guess I should behave this time.";
+            } else {
+                main.textContent = "Well… the coin says no, but I don't always listen to coins anyway 😉. Hi Miss Katona!";
+                sub.textContent = "";
+            }
+        }
+    </script>
+</body>
+</html>
