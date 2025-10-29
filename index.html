@@ -89,7 +89,15 @@
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* Screen 2 */
-        #screen2 { background: linear-gradient(135deg, #fda085 0%, #a18cd1 100%); }
+        #screen2 { 
+            background: linear-gradient(135deg, #fda085 0%, #a18cd1 100%);
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 3rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
 
         .flip-title {
             font-size: 2rem;
@@ -131,7 +139,13 @@
             100% { transform: scale(1); opacity: 1; }
         }
 
-        .coin-container { perspective: 1000px; margin-bottom: 3rem; }
+        .coin-container { 
+            perspective: 1000px; 
+            margin-bottom: 3rem; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
         .coin {
             width: 200px;
@@ -225,13 +239,27 @@
 
         @keyframes blinkSignature { 50% { border-color: transparent; } }
 
+        /* 📱 Mobile Optimization for Screen 2 */
         @media (max-width: 768px) {
             .compliment-text { font-size: 1.2rem; }
             .message-text { font-size: 1.3rem; }
             .message-subtext { font-size: 1.1rem; }
             .intro-title { font-size: 2rem; }
+
+            #screen2 {
+                padding: 2rem 1rem;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .flip-title { font-size: 1.5rem; line-height: 1.5; }
+            .flip-rules { font-size: 1.1rem; line-height: 1.6; margin-bottom: 1.5rem; }
+
             .coin, .coin-face { width: 150px; height: 150px; }
             .coin-face { font-size: 4rem; }
+            .result-text { font-size: 1.8rem; }
+
+            .btn { padding: 0.8rem 2rem; font-size: 1rem; }
         }
     </style>
 </head>
@@ -291,19 +319,18 @@
             document.body.appendChild(s);
         }
 
-        // Transition intro → screen1
+        // Intro → screen1
         setTimeout(() => {
             document.getElementById('intro-screen').classList.remove('active');
             setTimeout(() => document.getElementById('screen1').classList.add('active'), 800);
         }, 3000);
 
-        // Continue button
         document.getElementById('continueBtn').onclick = () => {
             document.getElementById('screen1').classList.remove('active');
             setTimeout(() => document.getElementById('screen2').classList.add('active'), 800);
         };
 
-        // Flip button
+        // Flip Coin
         document.getElementById('flipBtn').onclick = () => flipCoin();
 
         function flipCoin() {
@@ -315,15 +342,6 @@
             flipBtn.disabled = true;
             resultText.classList.remove('show');
             reflipBtn.style.display = "none";
-
-            // Sound
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator(), gain = ctx.createGain();
-                osc.connect(gain); gain.connect(ctx.destination);
-                osc.frequency.value = 800; gain.gain.value = 0.1;
-                osc.start(); osc.stop(ctx.currentTime + 0.1);
-            } catch(e) {}
 
             const isHeads = Math.random() < 0.5;
             flipResult = isHeads ? 'heads' : 'tails';
@@ -346,12 +364,9 @@
             }, 1500);
         }
 
-        // Reflip button
         document.getElementById('reflipBtn').onclick = () => flipCoin();
 
-        // Replay button (restart everything)
         document.getElementById('replayBtn').onclick = () => {
-            // Reset all screens and variables
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             rotation = 0;
             document.getElementById('coin').style.transform = 'rotateY(0deg)';
@@ -359,7 +374,6 @@
             document.getElementById('reflipBtn').style.display = 'none';
             document.getElementById('intro-screen').classList.add('active');
 
-            // Restart timing
             setTimeout(() => {
                 document.getElementById('intro-screen').classList.remove('active');
                 setTimeout(() => document.getElementById('screen1').classList.add('active'), 800);
